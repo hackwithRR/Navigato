@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Navigato | Infinite Campus</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap");
+      body {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        background-color: #020617;
+      }
+
+      .blueprint-grid {
+        background-image: radial-gradient(
+          rgba(59, 130, 246, 0.1) 1px,
+          transparent 1px
+        );
+        background-size: 20px 20px;
+      }
+
+      .nav-path {
+        stroke-dasharray: 10, 15;
+        stroke-dashoffset: 0;
+        animation: pathMoving 30s linear infinite;
+        filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.8));
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      @keyframes pathMoving {
+        from {
+          stroke-dashoffset: 1000;
+        }
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+
+      .path-glow {
+        filter: blur(4px);
+        opacity: 0.4;
+        animation: pulseGlow 2s ease-in-out infinite;
+      }
+
+      @keyframes pulseGlow {
+        0%,
+        100% {
+          opacity: 0.3;
+          stroke-width: 8;
+        }
+        50% {
+          opacity: 0.6;
+          stroke-width: 12;
+        }
+      }
+
+      .block-bg {
+        fill: rgba(15, 23, 42, 0.7);
+        stroke: rgba(59, 130, 246, 0.2);
+        stroke-width: 2;
+      }
+      .ground-bg {
+        fill: rgba(34, 197, 94, 0.05);
+        stroke: rgba(34, 197, 94, 0.2);
+        stroke-width: 1;
+      }
+      .compass-active {
+        transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+    </style>
+  </head>
+  <body class="text-slate-200 overflow-hidden select-none">
+    <div
+      id="setup-screen"
+      class="flex flex-col h-screen bg-slate-950 blueprint-grid overflow-y-auto"
+    >
+      <header
+        class="p-4 md:p-6 flex justify-between items-center border-b border-white/5 bg-slate-950/80 sticky top-0 z-50 backdrop-blur-md"
+      >
+        <div class="flex items-center gap-3">
+          <div class="bg-blue-600 p-2 rounded-xl shadow-lg shadow-blue-500/30">
+            <i data-lucide="map" class="text-white"></i>
+          </div>
+          <h1
+            class="text-lg md:text-xl font-black uppercase italic tracking-tighter"
+          >
+            Navigato <span class="text-blue-500">Global</span>
+          </h1>
+        </div>
+        <button
+          onclick="triggerEmergency('Security')"
+          class="bg-red-600 px-4 py-2 rounded-xl text-[10px] font-black flex items-center gap-2 transition-all active:scale-95"
+        >
+          <i data-lucide="shield-alert" class="w-4 h-4"></i> CALL SECURITY
+        </button>
+      </header>
+
+      <div
+        class="flex-1 flex flex-col items-center justify-center p-4 md:p-6 space-y-6"
+      >
+        <div class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div
+            class="lg:col-span-3 bg-slate-900 border border-white/10 p-6 md:p-12 rounded-[32px] md:rounded-[56px] shadow-2xl space-y-6"
+          >
+            <h2 class="text-3xl md:text-5xl font-black leading-tight">
+              Smart Campus <br /><span class="text-blue-500"
+                >Master Navigator</span
+              >
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-2">
+                <label
+                  class="text-[10px] font-bold text-slate-500 uppercase ml-2"
+                  >Current Location</label
+                >
+                <select
+                  id="startPoint"
+                  class="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-sm"
+                ></select>
+              </div>
+              <div class="space-y-2">
+                <label
+                  class="text-[10px] font-bold text-slate-500 uppercase ml-2"
+                  >Destination</label
+                >
+                <select
+                  id="endPoint"
+                  class="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-sm"
+                ></select>
+              </div>
+            </div>
+            <button
+              onclick="startNavigation()"
+              class="w-full py-5 bg-blue-600 hover:bg-blue-500 rounded-2xl font-black text-lg shadow-xl shadow-blue-600/30 transition-all active:scale-95 uppercase tracking-tighter"
+            >
+              START LIVE GUIDANCE
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 lg:grid-cols-1 gap-3">
+            <button
+              onclick="quickNavTo('M01')"
+              class="flex items-center gap-3 p-4 bg-red-600/10 border border-red-500/20 rounded-2xl hover:bg-red-600/20 transition-all"
+            >
+              <i data-lucide="heart-pulse" class="text-red-500 w-4 h-4"></i>
+              <span class="text-[10px] font-bold uppercase">Medical</span>
+            </button>
+            <button
+              onclick="quickNavTo('W01')"
+              class="flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-blue-600/10 transition-all"
+            >
+              <i data-lucide="droplets" class="text-blue-400 w-4 h-4"></i>
+              <span class="text-[10px] font-bold uppercase">Washroom</span>
+            </button>
+            <button
+              onclick="quickNavTo('G01')"
+              class="flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-green-600/10 transition-all"
+            >
+              <i data-lucide="trophy" class="text-green-500 w-4 h-4"></i>
+              <span class="text-[10px] font-bold uppercase">Ground</span>
+            </button>
+            <button
+              onclick="quickNavTo('EXIT1')"
+              class="flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-orange-600/10 transition-all"
+            >
+              <i data-lucide="door-open" class="text-orange-500 w-4 h-4"></i>
+              <span class="text-[10px] font-bold uppercase">Exit</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="nav-screen"
+      class="hidden fixed inset-0 flex flex-col md:flex-row bg-slate-950"
+    >
+      <div
+        class="h-[50vh] md:h-full md:w-3/5 relative border-b md:border-b-0 md:border-r border-white/10 blueprint-grid overflow-hidden"
+      >
+        <svg id="live-map" viewBox="0 0 1000 900" class="w-full h-full">
+          <rect
+            x="50"
+            y="50"
+            width="350"
+            height="300"
+            class="block-bg"
+            rx="20"
+          />
+          <text
+            x="225"
+            y="40"
+            fill="#3b82f6"
+            font-size="12"
+            font-weight="900"
+            text-anchor="middle"
+            class="uppercase opacity-60"
+          >
+            Block A
+          </text>
+
+          <rect
+            x="600"
+            y="50"
+            width="350"
+            height="300"
+            class="block-bg"
+            rx="20"
+          />
+          <text
+            x="775"
+            y="40"
+            fill="#3b82f6"
+            font-size="12"
+            font-weight="900"
+            text-anchor="middle"
+            class="uppercase opacity-60"
+          >
+            Block B
+          </text>
+
+          <rect
+            x="50"
+            y="550"
+            width="550"
+            height="300"
+            class="ground-bg"
+            rx="20"
+          />
+          <rect
+            x="650"
+            y="550"
+            width="300"
+            height="300"
+            fill="rgba(255,255,255,0.02)"
+            stroke="white"
+            stroke-opacity="0.05"
+            rx="20"
+          />
+
+          <g id="rooms-layer"></g>
+          <path
+            id="guide-path-glow"
+            d=""
+            fill="none"
+            stroke="#3b82f6"
+            stroke-width="12"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="path-glow"
+          />
+          <path
+            id="guide-path"
+            d=""
+            fill="none"
+            stroke="#3b82f6"
+            stroke-width="8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="nav-path"
+          />
+          <circle
+            id="user-dot"
+            cx="-50"
+            cy="-50"
+            r="14"
+            fill="#3b82f6"
+            stroke="white"
+            stroke-width="4"
+          />
+        </svg>
+
+        <div class="absolute top-4 left-4 flex gap-2">
+          <span
+            id="floor-badge"
+            class="px-3 py-1 bg-blue-600 text-white rounded-lg text-[10px] font-black uppercase shadow-lg"
+            >Level 1</span
+          >
+        </div>
+
+        <div class="absolute top-4 right-4">
+          <div
+            class="w-16 h-16 rounded-full bg-slate-900/80 border border-white/10 flex items-center justify-center backdrop-blur-sm"
+          >
+            <div
+              id="compass-ring"
+              class="compass-active absolute w-full h-full border-t-2 border-blue-500 rounded-full"
+            ></div>
+            <i data-lucide="navigation-2" class="text-white w-5 h-5"></i>
+          </div>
+        </div>
+
+        <div class="absolute bottom-4 left-4 flex gap-2">
+          <button
+            onclick="location.reload()"
+            class="p-3 bg-slate-800 rounded-xl border border-white/10"
+          >
+            <i data-lucide="home" class="text-white w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex-1 md:w-2/5 bg-slate-900 flex flex-col p-6 md:p-12">
+        <div
+          class="flex-1 flex flex-col items-center justify-center text-center space-y-4 md:space-y-8"
+        >
+          <div
+            id="instr-icon"
+            class="w-20 h-20 md:w-32 md:h-32 bg-blue-600/10 rounded-3xl border border-blue-500/20 flex items-center justify-center"
+          >
+            <i
+              data-lucide="map-pin"
+              class="w-10 h-10 md:w-16 md:h-16 text-blue-500"
+            ></i>
+          </div>
+
+          <div>
+            <h2
+              id="main-instr"
+              class="text-2xl md:text-4xl font-black text-white uppercase italic leading-none mb-2"
+            >
+              Locating
+            </h2>
+            <p
+              id="sub-instr"
+              class="text-slate-400 text-sm md:text-lg font-medium"
+            >
+              Follow the path on the map
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-auto pt-6 border-t border-white/5">
+          <button
+            onclick="nextStep()"
+            class="w-full py-5 md:py-8 bg-white text-slate-950 rounded-2xl md:rounded-3xl font-black text-lg md:text-2xl flex items-center justify-center gap-4 hover:bg-blue-600 hover:text-white transition-all active:scale-95"
+          >
+            NEXT STEP
+            <i data-lucide="arrow-right" class="w-6 h-6 md:w-8 md:h-8"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      lucide.createIcons();
+
+      const campus = {
+        rooms: [
+          {
+            id: "A01",
+            name: "Reception",
+            x: 225,
+            y: 300,
+            icon: "info",
+            floor: 1,
+          },
+          {
+            id: "A02",
+            name: "Registrar",
+            x: 125,
+            y: 120,
+            icon: "user",
+            floor: 1,
+          },
+          {
+            id: "A03",
+            name: "Conference 1",
+            x: 325,
+            y: 120,
+            icon: "users",
+            floor: 1,
+          },
+          {
+            id: "A04",
+            name: "Arts Studio",
+            x: 125,
+            y: 220,
+            icon: "palette",
+            floor: 2,
+          },
+          {
+            id: "A05",
+            name: "Admin Hub",
+            x: 325,
+            y: 220,
+            icon: "briefcase",
+            floor: 2,
+          },
+          {
+            id: "E01",
+            name: "CSE Lab 402",
+            x: 775,
+            y: 100,
+            icon: "cpu",
+            floor: 1,
+          },
+          {
+            id: "E02",
+            name: "Robotics Wing",
+            x: 675,
+            y: 200,
+            icon: "bot",
+            floor: 1,
+          },
+          {
+            id: "E03",
+            name: "Mech Shop",
+            x: 875,
+            y: 200,
+            icon: "settings",
+            floor: 1,
+          },
+          {
+            id: "E04",
+            name: "HOD CSE",
+            x: 775,
+            y: 200,
+            icon: "award",
+            floor: 2,
+          },
+          {
+            id: "E05",
+            name: "Design Lab",
+            x: 875,
+            y: 100,
+            icon: "ruler",
+            floor: 2,
+          },
+          {
+            id: "M01",
+            name: "Medical Room",
+            x: 500,
+            y: 450,
+            icon: "heart-pulse",
+            floor: 1,
+          },
+          {
+            id: "W01",
+            name: "Washrooms",
+            x: 550,
+            y: 450,
+            icon: "droplets",
+            floor: 1,
+          },
+          {
+            id: "EXIT1",
+            name: "Gate South",
+            x: 500,
+            y: 880,
+            icon: "door-open",
+            floor: 1,
+          },
+          {
+            id: "G01",
+            name: "Football Ground",
+            x: 325,
+            y: 700,
+            icon: "trophy",
+            floor: 1,
+          },
+          {
+            id: "G02",
+            name: "Basketball",
+            x: 200,
+            y: 600,
+            icon: "target",
+            floor: 1,
+          },
+          {
+            id: "P01",
+            name: "Parking A",
+            x: 800,
+            y: 750,
+            icon: "car",
+            floor: 1,
+          },
+          {
+            id: "STAIR1",
+            name: "Main Stairs",
+            x: 500,
+            y: 250,
+            icon: "layers",
+            floor: 1,
+          },
+        ],
+      };
+
+      let currentStep = 0;
+      let route = [];
+      let mapFloor = 1;
+
+      function init() {
+        const s1 = document.getElementById("startPoint");
+        const s2 = document.getElementById("endPoint");
+        campus.rooms.forEach((r) => {
+          const opt = new Option(`F${r.floor}: ${r.name}`, r.id);
+          s1.add(opt.cloneNode(true));
+          s2.add(opt);
+        });
+        renderMap(1);
+      }
+
+      function renderMap(f) {
+        const layer = document.getElementById("rooms-layer");
+        layer.innerHTML = "";
+        campus.rooms
+          .filter((r) => r.floor === f)
+          .forEach((r) => {
+            const g = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "g",
+            );
+            g.innerHTML = `
+                    <rect x="${r.x - 40}" y="${r.y - 20}" width="80" height="40" fill="rgba(59, 130, 246, 0.05)" stroke="rgba(59, 130, 246, 0.2)" rx="8"/>
+                    <text x="${r.x}" y="${r.y + 5}" fill="#64748b" font-size="10" font-weight="900" text-anchor="middle" class="uppercase">${r.name}</text>
+                `;
+            layer.appendChild(g);
+          });
+        document.getElementById("floor-badge").innerText = `Level ${f}`;
+      }
+
+      function startNavigation() {
+        const sid = document.getElementById("startPoint").value;
+        const eid = document.getElementById("endPoint").value;
+        const start = campus.rooms.find((r) => r.id === sid);
+        const end = campus.rooms.find((r) => r.id === eid);
+
+        route = [];
+        if (start.floor !== end.floor) {
+          const stairs = campus.rooms.find((r) => r.id === "STAIR1");
+          route.push({
+            x: start.x,
+            y: start.y,
+            floor: start.floor,
+            m: "Starting",
+            s: `Leaving ${start.name}`,
+            i: "navigation",
+            rot: 0,
+          });
+          route.push({
+            x: stairs.x,
+            y: stairs.y,
+            floor: start.floor,
+            m: "Take Stairs",
+            s: `Go to Floor ${end.floor}`,
+            i: "layers",
+            rot: 45,
+          });
+          route.push({
+            x: stairs.x,
+            y: stairs.y,
+            floor: end.floor,
+            m: "Level Up",
+            s: `Floor ${end.floor} Reached`,
+            i: "arrow-up-right",
+            rot: -45,
+          });
+        } else {
+          route.push({
+            x: start.x,
+            y: start.y,
+            floor: start.floor,
+            m: "Departing",
+            s: `Leaving ${start.name}`,
+            i: "navigation",
+            rot: 0,
+          });
+        }
+
+        route.push({
+          x: 500,
+          y: 500,
+          floor: end.floor,
+          m: "Cross Corridor",
+          s: "Walk past the main hub",
+          i: "move",
+          rot: 90,
+        });
+        route.push({
+          x: end.x,
+          y: end.y,
+          floor: end.floor,
+          m: "Arrived",
+          s: `Reached ${end.name}`,
+          i: "check-circle",
+          rot: 0,
+        });
+
+        document.getElementById("setup-screen").classList.add("hidden");
+        document.getElementById("nav-screen").classList.remove("hidden");
+        updateUI();
+      }
+
+      function nextStep() {
+        if (currentStep < route.length - 1) {
+          currentStep++;
+          updateUI();
+        } else {
+          location.reload();
+        }
+      }
+
+      function updateUI() {
+        const step = route[currentStep];
+        if (mapFloor !== step.floor) {
+          mapFloor = step.floor;
+          renderMap(mapFloor);
+        }
+
+        document.getElementById("user-dot").setAttribute("cx", step.x);
+        document.getElementById("user-dot").setAttribute("cy", step.y);
+
+        let pathD = `M ${route[0].floor === mapFloor ? route[0].x : step.x} ${route[0].floor === mapFloor ? route[0].y : step.y}`;
+        for (let i = 1; i <= currentStep; i++) {
+          if (route[i].floor === mapFloor)
+            pathD += ` L ${route[i].x} ${route[i].y}`;
+        }
+        document.getElementById("guide-path").setAttribute("d", pathD);
+        document.getElementById("guide-path-glow").setAttribute("d", pathD);
+
+        document.getElementById("compass-ring").style.transform =
+          `rotate(${step.rot}deg)`;
+        document.getElementById("main-instr").innerText = step.m;
+        document.getElementById("sub-instr").innerText = step.s;
+        document.getElementById("instr-icon").innerHTML =
+          `<i data-lucide="${step.i}" class="w-10 h-10 md:w-16 md:h-16 text-blue-500"></i>`;
+        lucide.createIcons();
+      }
+
+      function quickNavTo(id) {
+        document.getElementById("endPoint").value = id;
+        if (!document.getElementById("startPoint").value)
+          document.getElementById("startPoint").value = "A01";
+        startNavigation();
+      }
+
+      function triggerEmergency(type) {
+        alert(`ALERT: Sending coordinates to Campus Security.`);
+      }
+
+      init();
+    </script>
+  </body>
+</html>
