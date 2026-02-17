@@ -11,6 +11,23 @@
       body {
         font-family: "Plus Jakarta Sans", sans-serif;
         background-color: #020617;
+        transition:
+          background-color 0.3s,
+          color 0.3s;
+      }
+
+      /* Missing Feature: Theme Support */
+      body.bg-white {
+        background-color: #ffffff !important;
+      }
+      body.text-black {
+        color: #000000 !important;
+      }
+      body.bg-white .blueprint-grid {
+        background-image: radial-gradient(
+          rgba(0, 0, 0, 0.1) 1px,
+          transparent 1px
+        );
       }
 
       .blueprint-grid {
@@ -73,6 +90,28 @@
   </head>
   <body class="text-slate-200 overflow-hidden select-none">
     <div
+      class="fixed top-2 left-1/2 -translate-x-1/2 z-[60] flex gap-3 bg-slate-900/80 p-2 rounded-2xl border border-white/10 backdrop-blur-md"
+    >
+      <input
+        id="username"
+        placeholder="Enter Name"
+        class="px-3 py-2 text-sm bg-slate-800 rounded-xl border border-white/10 text-white outline-none"
+      />
+      <button
+        onclick="saveUser()"
+        class="px-3 py-2 bg-blue-600 rounded-xl text-xs font-bold uppercase"
+      >
+        SAVE
+      </button>
+      <button
+        onclick="toggleTheme()"
+        class="px-3 py-2 bg-purple-600 rounded-xl text-xs font-bold uppercase"
+      >
+        THEME
+      </button>
+    </div>
+
+    <div
       id="setup-screen"
       class="flex flex-col h-screen bg-slate-950 blueprint-grid overflow-y-auto"
     >
@@ -100,6 +139,8 @@
       <div
         class="flex-1 flex flex-col items-center justify-center p-4 md:p-6 space-y-6"
       >
+        <h2 id="greet" class="text-xl font-bold text-blue-400 mb-[-20px]"></h2>
+
         <div class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div
             class="lg:col-span-3 bg-slate-900 border border-white/10 p-6 md:p-12 rounded-[32px] md:rounded-[56px] shadow-2xl space-y-6"
@@ -117,7 +158,7 @@
                 >
                 <select
                   id="startPoint"
-                  class="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-sm"
+                  class="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-sm text-white"
                 ></select>
               </div>
               <div class="space-y-2">
@@ -127,16 +168,26 @@
                 >
                 <select
                   id="endPoint"
-                  class="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-sm"
+                  class="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-sm text-white"
                 ></select>
               </div>
             </div>
-            <button
-              onclick="startNavigation()"
-              class="w-full py-5 bg-blue-600 hover:bg-blue-500 rounded-2xl font-black text-lg shadow-xl shadow-blue-600/30 transition-all active:scale-95 uppercase tracking-tighter"
-            >
-              START LIVE GUIDANCE
-            </button>
+
+            <div class="flex flex-col md:flex-row gap-4">
+              <button
+                onclick="startNavigation()"
+                class="flex-1 py-5 bg-blue-600 hover:bg-blue-500 rounded-2xl font-black text-lg shadow-xl shadow-blue-600/30 transition-all active:scale-95 uppercase tracking-tighter text-white"
+              >
+                START LIVE GUIDANCE
+              </button>
+              <button
+                onclick="saveFavorite()"
+                class="px-8 py-5 bg-green-600 hover:bg-green-500 rounded-2xl font-black text-lg transition-all active:scale-95 text-white flex items-center justify-center gap-2"
+              >
+                <i data-lucide="star" class="w-5 h-5"></i>
+                <span class="md:hidden lg:inline text-xs">SAVE FAVORITE</span>
+              </button>
+            </div>
           </div>
 
           <div class="grid grid-cols-2 lg:grid-cols-1 gap-3">
@@ -200,7 +251,6 @@
           >
             Block A
           </text>
-
           <rect
             x="600"
             y="50"
@@ -220,7 +270,6 @@
           >
             Block B
           </text>
-
           <rect
             x="50"
             y="550"
@@ -315,7 +364,6 @@
               class="w-10 h-10 md:w-16 md:h-16 text-blue-500"
             ></i>
           </div>
-
           <div>
             <h2
               id="main-instr"
@@ -331,7 +379,6 @@
             </p>
           </div>
         </div>
-
         <div class="mt-auto pt-6 border-t border-white/5">
           <button
             onclick="nextStep()"
@@ -501,7 +548,30 @@
           s2.add(opt);
         });
         renderMap(1);
+        loadUser(); // Missing Feature Loaded
       }
+
+      // --- MISSING FEATURES UPDATED FUNCTIONS ---
+      function saveUser() {
+        localStorage.setItem("user", document.getElementById("username").value);
+        loadUser();
+      }
+
+      function loadUser() {
+        const u = localStorage.getItem("user");
+        if (u) document.getElementById("greet").innerText = "Welcome " + u;
+      }
+
+      function toggleTheme() {
+        document.body.classList.toggle("bg-white");
+        document.body.classList.toggle("text-black");
+      }
+
+      function saveFavorite() {
+        localStorage.setItem("fav", document.getElementById("endPoint").value);
+        alert("Favorite Saved");
+      }
+      // --- END OF UPDATED FUNCTIONS ---
 
       function renderMap(f) {
         const layer = document.getElementById("rooms-layer");
@@ -514,9 +584,9 @@
               "g",
             );
             g.innerHTML = `
-                    <rect x="${r.x - 40}" y="${r.y - 20}" width="80" height="40" fill="rgba(59, 130, 246, 0.05)" stroke="rgba(59, 130, 246, 0.2)" rx="8"/>
-                    <text x="${r.x}" y="${r.y + 5}" fill="#64748b" font-size="10" font-weight="900" text-anchor="middle" class="uppercase">${r.name}</text>
-                `;
+              <rect x="${r.x - 40}" y="${r.y - 20}" width="80" height="40" fill="rgba(59, 130, 246, 0.05)" stroke="rgba(59, 130, 246, 0.2)" rx="8"/>
+              <text x="${r.x}" y="${r.y + 5}" fill="#64748b" font-size="10" font-weight="900" text-anchor="middle" class="uppercase">${r.name}</text>
+            `;
             layer.appendChild(g);
           });
         document.getElementById("floor-badge").innerText = `Level ${f}`;
@@ -599,6 +669,7 @@
           currentStep++;
           updateUI();
         } else {
+          alert("Arrived"); // From snippet 2 logic
           location.reload();
         }
       }
@@ -638,10 +709,11 @@
       }
 
       function triggerEmergency(type) {
-        alert(`ALERT: Sending coordinates to Campus Security.`);
+        alert("Security Alert Sent"); // Updated to match Snippet 2
       }
 
       init();
     </script>
   </body>
 </html>
+
